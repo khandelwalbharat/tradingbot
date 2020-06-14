@@ -27,8 +27,8 @@ class CandleEvent(object):
         return pd.DataFrame(dict_)
 
 
-def get_time_stripped_to_min(time, rounding=1):
-    return datetime.time(time.hour, (time.minute // rounding) * rounding)
+def get_datetime_stripped_to_min(time, rounding=1):
+    return datetime.datetime(time.year, time.month, time.day, time.hour, (time.minute // rounding) * rounding)
 
 class CandleGenerator(object):
     """ 
@@ -54,18 +54,18 @@ class CandleGenerator(object):
         self.duration = datetime.timedelta(minutes=candle_duration)
 
     def process_tick(self, symbol_tick):
-        if self.start_time is None:
+        if self.last_time is None:
             # first tick
-            self.last_time = get_time_stripped_to_min(symbol_tick.last_traded_time, self.duration)
+            self.last_time = get_datetime_stripped_to_min(symbol_tick.last_traded_time, self.candle_duration)
             self.O = symbol_tick.last_traded_price
             self.H = symbol_tick.last_traded_price
             self.L = symbol_tick.last_traded_price
             self.C = symbol_tick.last_traded_price
             self.volume = symbol_tick.volume - self.last_volume
             return None
-        elif symbol_tick.last_traded_time - self.start_time >= self.duration:
+        elif symbol_tick.last_traded_time - self.last_time >= self.duration:
             # tick complete
-            candle = CandleEvent(self.symbol, self.candle_duration, self.start_time, self.O, self.H, self.L, self.C, self.volume)
+            candle = CandleEvent(self.symbol, self.candle_duration, self.last_time, self.O, self.H, self.L, self.C, self.volume)
             candles = pd.concat(self.candles, candle.get_df())
             indicator_dict = {}
             [indicator_dict.update(indicator.get_value(candles)) for indicator in self.indicators]

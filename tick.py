@@ -8,8 +8,9 @@ class SymbolTickEvent(object):
     Just used to communicated symbol wise ticks from Tick Manager
     to relevant CandleManager
     """
-    def __init__(self, instrument_token, timestamp, last_price, volume, oi, average_price, **kwargs):
-        self.symbol = instrument_token
+    def __init__(self, symbol, instrument_token, timestamp, last_price, volume, oi, average_price, **kwargs):
+        self.symbol = symbol
+        self.instrument_token = instrument_token
         self.last_traded_time = timestamp
         self.last_traded_price = last_price
         self.volume = volume
@@ -31,4 +32,5 @@ class TickManager(object):
             self.candle_managers[symbol_tick.symbol].process_tick(symbol_tick)
 
     def on_ticks(self, ws, ticks):
+        print(ticks)
         self.process_tick(ticks)

@@ -14,7 +14,7 @@ logging.basicConfig(level=logging.DEBUG)
 LOGGER = logging.getLogger()
 
 def main(args):
-    market_data_listener = MarketDataListener(args.symbol_list, args.api_key, args.access_token, args.api_secret)
+    market_data_listener = MarketDataListener(args.symbol_list, args.api_key, args.request_token, args.api_secret)
     tick_manager = TickManager(market_data_listener.instrument_token_to_symbol)
 
     for symbol in args.symbol_list:
@@ -27,14 +27,13 @@ def main(args):
     market_data_listener.connect()
     while True:
         market_data_listener.kws.on_ticks = tick_manager.on_ticks
-        sleep(0.1)
 
 def get_args():
     parser = argparse.ArgumentParser()
-    parser.add_argument('-s', '--symbol_list', nargs='+',help='an integer for the accumulator')
-    parser.add_argument('-ak', '--api_key', help='API Key, contact developer')
-    parser.add_argument('-as', '--api_secret', help='API Secret, contact developer')
-    parser.add_argument('-at', '--access_token', help='API access token, login at https://kite.trade/connect/login?api_key={api_key}&v=3')
+    parser.add_argument('--symbol_list', nargs='+',help='an integer for the accumulator')
+    parser.add_argument('--api_key', help='API Key, contact developer')
+    parser.add_argument('--api_secret', help='API Secret, contact developer')
+    parser.add_argument('--request_token', help='API request_token, login at https://kite.trade/connect/login?api_key={api_key}&v=3')
     return parser.parse_args()
 
 if __name__ == "__main__":

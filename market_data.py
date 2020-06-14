@@ -24,7 +24,7 @@ class MarketDataListener(object):
 
     def _init_listener(self):
         # Initialise
-        kws = KiteTicker(self.API_key, self.access_token)
+        kws = KiteTicker(self.API_key, self.access_token, debug=True)
 
         def on_ticks(ws, ticks):
             # Callback to receive ticks.
@@ -33,7 +33,9 @@ class MarketDataListener(object):
         def on_connect(ws, response):
             # Callback on successful connect.
             # Subscribe to a list of instrument_tokens (RELIANCE and ACC here).
-            symbol_list = self.instrument_token_to_symbol.keys()
+            print("hi")
+            symbol_list = list(self.instrument_token_to_symbol.keys())
+            print(symbol_list)
             ws.subscribe(symbol_list)
 
             # Set RELIANCE to tick in `full` mode.
