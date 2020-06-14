@@ -6,14 +6,15 @@ logging.basicConfig(level=logging.DEBUG)
 LOGGER = logging.getLogger()
 
 class MarketDataListener(object):
-    def __init__(self, symbol_list, API_key, API_access_token, API_secret):
+    def __init__(self, symbol_list, API_key, API_request_token, API_secret):
         self.API_key = API_key
         self.API_secret = API_secret
-        self.API_access_token = API_access_token
+        self.API_request_token = API_request_token
         
         self.kite = KiteConnect(api_key=self.API_key)
-        data = self.kite.generate_session(self.API_access_token, api_secret=self.API_secret)
-        self.kite.set_access_token(data["access_token"])
+        data = self.kite.generate_session(self.API_request_token, api_secret=self.API_secret)
+        self.access_token = data["access_token"]
+        self.kite.set_access_token(self.access_token)
 
         df = pd.DataFrame(self.kite.instruments())
         df = df[(df['tradingsymbol'].isin(symbol_list)) & (df['segment'] == 'NSE')]
@@ -23,11 +24,11 @@ class MarketDataListener(object):
 
     def _init_listener(self):
         # Initialise
-        kws = KiteTicker(self.API_key, self.API_access_token)
+        kws = KiteTicker(self.API_key, self.access_token)
 
         def on_ticks(ws, ticks):
             # Callback to receive ticks.
-            LOGGER.info(ticks[0].keys())
+            print(ticks)
 
         def on_connect(ws, response):
             # Callback on successful connect.
@@ -41,7 +42,8 @@ class MarketDataListener(object):
         def on_close(ws, code, reason):
             # On connection close stop the main loop
             # Reconnection will not happen after executing `ws.stop()`
-            ws.stop()
+            print(code)
+            print(reason)
 
         # Assign the callbacks.
         kws.on_ticks = on_ticks
