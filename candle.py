@@ -64,8 +64,8 @@ class CandleGenerator(object):
             return None
         elif symbol_tick.last_traded_time - self.last_time >= self.duration:
             # tick complete
-            candle = CandleEvent(self.symbol, self.candle_duration, self.last_time, self.O, self.H, self.L, self.C, self.volume)
-            candles = pd.concat(self.candles, candle.get_df())
+            candle = CandleEvent(self.symbol, self.candle_duration, self.last_time.time(), self.O, self.H, self.L, self.C, self.volume)
+            candles = pd.concat([self.candles, candle.get_df()])
             indicator_dict = {}
             [indicator_dict.update(indicator.get_value(candles)) for indicator in self.indicators]
             candle.update_indicators(indicator_dict)
@@ -76,7 +76,7 @@ class CandleGenerator(object):
             self.C = symbol_tick.last_traded_price
             self.last_volume = self.last_volume + self.volume
             self.volume = symbol_tick.volume - self.last_volume
-            self.candles = pd.concat(self.candles, candle.get_df())
+            self.candles = pd.concat([self.candles, candle.get_df()])
             return candle
         else:
             self.H = max(self.H, symbol_tick.last_traded_price)
