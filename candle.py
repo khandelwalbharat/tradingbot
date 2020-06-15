@@ -15,16 +15,15 @@ class CandleEvent(object):
         self.L = L
         self.C = C
         self.volume = volume
+        self.indicators = {}
 
     def update_indicators(self, indicator_dict):
         self.indicators = deepcopy(indicator_dict)
 
     def get_df(self):
-        dict_ = deepcopy(self.__dict__)
-        if 'indicators' in self.__dict__:
-            del dict_['indicators']
-            dict_.update(self.indicators)
-        return pd.DataFrame(dict_)
+        dict_ = {'time':self.time, 'O':self.O, 'H':self.H, 'L':self.L, 'C':self.C, 'volume':self.volume}
+        dict_.update(self.indicators)
+        return pd.DataFrame(dict_, index=[0])
 
 
 def get_datetime_stripped_to_min(time, rounding=1):

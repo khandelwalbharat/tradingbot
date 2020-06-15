@@ -1,5 +1,6 @@
 from abc import ABC, abstractmethod
 import numpy as np
+import ta
 
 class Indicator(ABC):
     @abstractmethod
@@ -11,7 +12,7 @@ class Indicator(ABC):
 class IndicatorFactory(object):
     def load(self, name):
         if name.startswith('ema_'):
-            duration = name.split('ema_')[-1]
+            duration = int(name.split('ema_')[-1])
             return EMAIndicator(name, duration)
         else:
             raise Exception("Indicator {} not implemented".format(name))
@@ -23,6 +24,6 @@ class EMAIndicator(Indicator):
         self.duration = duration
 
     def get_value(self, candles):
-        candles_to_use = candles.iloc[-self.duration:]['close']
+        candles_to_use = candles.iloc[-self.duration:]['C']
         emas = np.round(ta.trend.EMAIndicator(candles_to_use, n=self.duration).ema_indicator(), 3)
         return {self.name: emas.iloc[-1]}

@@ -1,5 +1,6 @@
 from abc import ABC, abstractmethod
 import datetime
+from order_manager import OrderManager
 
 
 class TradingClient(ABC):
@@ -25,7 +26,7 @@ class CrocodileEMACrossoverTradingClient(TradingClient):
         self.mid = mid
         self.slow = slow
         self.indicators = [fast, mid, slow]
-        # self.order_manager=OrderManager()
+        self.order_manager=OrderManager(self.symbol)
 
         # Setting up the state variables
         self.trend = 0
@@ -64,26 +65,26 @@ class CrocodileEMACrossoverTradingClient(TradingClient):
             # stoploss hit, sell immediately
             if low <= self.stoploss:
                 self.order_manager.addTrade(
-                    time=time, risk=0, price=self.stoploss, trade_type='stoploss', all_trades=all_trades)
+                    time=time, risk=0, price=self.stoploss, trade_type='stoploss')
                 self.stoploss, self.position = 0, 0
                 self.blocked_direction_stoploss = 1
             # square off, or trend changed for buy holding, sell immediately
             elif (time >= self.end_time or mild_trend == -1):
                 self.stoploss, self.position = 0, 0
                 trade = 'day_end' if time >= self.end_time else 'trend_reversal'
-                self.order_manager.addTrade(time=time, risk=0, price=close, trade_type=trade, all_trades=all_trades)
+                self.order_manager.addTrade(time=time, risk=0, price=close, trade_type=trade)
                 self.blocked_direction_stoploss = 0
         elif self.position == -1:
             # stoploss hit, buy immediately
             if high >= self.stoploss:
-                self.order_manager.addTrade(time=time, risk=0, price=self.stoploss, trade_type='stoploss', all_trades=all_trades)
+                self.order_manager.addTrade(time=time, risk=0, price=self.stoploss, trade_type='stoploss')
                 self.stoploss, self.position = 0, 0
                 self.blocked_direction_stoploss = -1
             # square off, or trend changed for sell holding, buy immediately
             elif (time >= self.end_time or mild_trend == 1):
                 self.stoploss, self.position = 0, 0
                 trade = 'day_end' if time >= self.end_time else 'trend_reversal'
-                self.order_manager.addTrade(time=time, risk=0, price=close, trade_type=trade, all_trades=all_trades)
+                self.order_manager.addTrade(time=time, risk=0, price=close, trade_type=trade)
                 self.blocked_direction_stoploss = 0
 
         if time >= self.end_time:  # No new action after square off
@@ -93,5 +94,5 @@ class CrocodileEMACrossoverTradingClient(TradingClient):
         if self.position == 0 and self.blocked_direction_stoploss != trend and trend != 0:
             self.position = trend
             self.stoploss = close * (1 - trend * self.stoploss_fraction)
-            self.order_manager.addTrade(time=time, risk=position, price=close, trade_type='new', stoploss=self.stoploss, all_trades=all_trades)
+            self.order_manager.addTrade(time=time, risk=self.position, price=close, trade_type='new', stoploss=self.stoploss)
             self.blocked_direction_stoploss = 0
