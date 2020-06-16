@@ -77,6 +77,7 @@ class CandleGenerator(object):
             self.last_volume = self.last_volume + self.volume
             self.volume = symbol_tick.volume - self.last_volume
             self.candles = pd.concat([self.candles, candle.get_df()])
+            self.last_time = get_datetime_stripped_to_min(symbol_tick.last_traded_time, self.candle_duration)
             return candle
         else:
             self.H = max(self.H, symbol_tick.last_traded_price)

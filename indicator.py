@@ -24,6 +24,6 @@ class EMAIndicator(Indicator):
         self.duration = duration
 
     def get_value(self, candles):
-        candles_to_use = candles.iloc[-self.duration:]['C']
+        candles_to_use = candles['C']
         emas = np.round(ta.trend.EMAIndicator(candles_to_use, n=self.duration).ema_indicator(), 3)
         return {self.name: emas.iloc[-1]}

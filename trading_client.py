@@ -47,6 +47,9 @@ class CrocodileEMACrossoverTradingClient(TradingClient):
         mid = candle.indicators[self.mid]
         slow = candle.indicators[self.slow]
 
+        with open("candles/"+self.symbol+".txt", "a+") as f:
+            f.write("Time = {}, O = {}, H = {}, L = {}, C = {}, Volume = {}\n".format(time, opeN, high, low, close, candle.volume))
+
         mild_trend = 0
         if((fast - mid > 0) and (mid - slow > 0)):
             mild_trend = 1
