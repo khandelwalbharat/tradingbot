@@ -30,10 +30,10 @@ def main(args):
 
 def get_args():
     parser = argparse.ArgumentParser()
-    parser.add_argument('--symbol_list', nargs='+',help='an integer for the accumulator')
-    parser.add_argument('--api_key', help='API Key, contact developer')
-    parser.add_argument('--api_secret', help='API Secret, contact developer')
-    parser.add_argument('--request_token', help='API request_token, login at https://kite.trade/connect/login?api_key={api_key}&v=3')
+    parser.add_argument('--symbol_list', nargs='+',help='an integer for the accumulator', required=True)
+    parser.add_argument('--api_key', help='API Key, contact developer', required=True)
+    parser.add_argument('--api_secret', help='API Secret, contact developer', required=True)
+    parser.add_argument('--request_token', help='API request_token, login at https://kite.trade/connect/login?api_key={api_key}&v=3', required=True)
     return parser.parse_args()
 
 if __name__ == "__main__":
