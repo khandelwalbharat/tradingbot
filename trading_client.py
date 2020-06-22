@@ -11,6 +11,7 @@ class TradingClient(ABC):
         self.end_time = end_time
         self.candle_duration = candle_duration
         self.order_manager=OrderManager(self.symbol)
+        self.indicators = []
 
     @abstractmethod
     def updateOpinion(self, candle):
@@ -54,7 +55,6 @@ class CrocodileEMACrossoverTradingClient(TradingClient):
         self.indicators = [fast, mid, slow]
         
         # Setting up the state variables
-        self.trend = 0
         self.position = 0  # 1 for long, 0 for nothing, -1 for short
         self.price = 0  # price at which we are holding the position
         self.stoploss = 0  # stoploss price for the position
@@ -190,7 +190,7 @@ class OpeningRangeBreakoutTradingClient(TradingClient):
         else:
             trend = 0
 
-        if(self.position == 0 and (not self.breakout) and self.trend!=0):
+        if(self.position == 0 and (not self.breakout) and trend!=0):
             self.breakout = True
             self.position = trend
             self.stoploss = self.high if self.position==-1 else self.low
