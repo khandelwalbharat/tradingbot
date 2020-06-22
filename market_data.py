@@ -2,9 +2,6 @@ from kiteconnect import KiteTicker, KiteConnect
 import logging
 import pandas as pd
 
-logging.basicConfig(level=logging.DEBUG)
-LOGGER = logging.getLogger()
-
 class MarketDataListener(object):
     def __init__(self, symbol_list, API_key, API_request_token, API_secret):
         self.API_key = API_key
@@ -28,14 +25,13 @@ class MarketDataListener(object):
 
         def on_ticks(ws, ticks):
             # Callback to receive ticks.
-            print(ticks)
+            pass
 
         def on_connect(ws, response):
             # Callback on successful connect.
             # Subscribe to a list of instrument_tokens (RELIANCE and ACC here).
-            print("hi")
             symbol_list = list(self.instrument_token_to_symbol.keys())
-            print(symbol_list)
+            logging.debug("Subscribing to {}".format(symbol_list))
             ws.subscribe(symbol_list)
 
             # Set RELIANCE to tick in `full` mode.
@@ -44,8 +40,7 @@ class MarketDataListener(object):
         def on_close(ws, code, reason):
             # On connection close stop the main loop
             # Reconnection will not happen after executing `ws.stop()`
-            print(code)
-            print(reason)
+            logging.debug("Closing connection with host with code = {} and reason = {}".format(code, reason))
 
         # Assign the callbacks.
         kws.on_ticks = on_ticks

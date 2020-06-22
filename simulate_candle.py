@@ -5,6 +5,7 @@ from copy import deepcopy
 from indicator import IndicatorFactory
 from candle import CandleEvent, CandleManager
 from time import sleep
+import logging
 
 class SimCandleGenerator(object):
     """ 

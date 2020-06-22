@@ -11,11 +11,20 @@ from trading_client import TradingClientFactory
 from candle import CandleManager
 from tick import TickManager
 from collections import OrderedDict
+import os
+from os import path
 
-logging.basicConfig(level=logging.DEBUG)
-LOGGER = logging.getLogger()
+def get_today_date_string():
+    now = datetime.datetime.now()
+    dt_string = now.strftime("%Y%m%d")
+    return dt_string
 
 def main(args):
+    date = get_today_date_string()
+    workdir = "/spare/local/tradingbot/{}/".format(date)
+    os.makedirs(workdir, exist_ok=True)
+
+    logging.basicConfig(level=logging.DEBUG, filename=path.join(workdir, 'log.txt'), format='%(asctime)s - %(levelname)s - %(message)s')
 
     with open(args.portfolio_file, 'r') as f:
         portfolio = json.load(f)

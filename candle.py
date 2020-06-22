@@ -3,6 +3,7 @@ import numpy as np
 import pandas as pd
 from copy import deepcopy
 from indicator import IndicatorFactory
+import logging
 
 class CandleEvent(object):
 
@@ -107,5 +108,6 @@ class CandleManager(object):
             candle = candle_generator.process_tick(symbol_tick)
             if candle is None:
                 continue
+            logging.info("Candle: {} = {}".format(self.symbol, candle.get_df().to_dict()))
             for trading_client in self.trading_clients[candle_generator.candle_duration]:
                 trading_client.updateOpinion(candle)

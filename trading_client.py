@@ -1,17 +1,19 @@
 from abc import ABC, abstractmethod
 import datetime
 from order_manager import OrderManager
+import logging
 
 
 class TradingClient(ABC):
     
-    def __init__(self, symbol, start_time, end_time, candle_duration=5, simulate=False, **kwargs):
+    def __init__(self, symbol, start_time, end_time, name, candle_duration=5, simulate=False, **kwargs):
+        self.name = name # Name of the client, not symbol
         self.symbol = symbol
         self.start_time = start_time
         self.end_time = end_time
         self.candle_duration = candle_duration
         self.simulate = simulate # True if running a simulation
-        self.order_manager=OrderManager(symbol = self.symbol, simulate = self.simulate)
+        self.order_manager=OrderManager(symbol = self.symbol, simulate = self.simulate, name = self.name)
         self.indicators = []
 
     @abstractmethod
@@ -31,7 +33,8 @@ class TradingClientFactory(object):
             end_time = str_to_time(kwargs['end_time'])
             epsilon = kwargs['epsilon']
             stoploss_fraction = kwargs['stoploss_fraction']
-            return CrocodileEMACrossoverTradingClient(symbol=symbol, start_time=start_time, end_time=end_time, stoploss_fraction=stoploss_fraction, epsilon=epsilon)
+            return CrocodileEMACrossoverTradingClient(symbol=symbol, start_time=start_time, end_time=end_time, stoploss_fraction=stoploss_fraction,\
+                epsilon=epsilon)
         
         elif name == 'OpeningRangeBreakoutTradingClient':
             symbol = kwargs['symbol']
@@ -40,14 +43,16 @@ class TradingClientFactory(object):
             return OpeningRangeBreakoutTradingClient(symbol=symbol, start_time=start_time, end_time=end_time)
         
         else:
+            logging.error("Client {} not implemented".format(name))
             raise Exception("Client {} not implemented".format(name))
 
 
 class CrocodileEMACrossoverTradingClient(TradingClient):
 
     def __init__(self, stoploss_fraction=0.01, epsilon=0.001, fast="ema_5", mid="ema_8", slow="ema_13", **kwargs):
-        super().__init__(**kwargs)
+        super().__init__(name = 'Crocodile Client', **kwargs)
         # Setting up the arguments
+
         self.stoploss_fraction = stoploss_fraction
         self.epsilon = epsilon
         self.fast = fast
@@ -55,6 +60,9 @@ class CrocodileEMACrossoverTradingClient(TradingClient):
         self.slow = slow
         self.indicators = [fast, mid, slow]
         
+        logging.info('Client: Initialized {} on {} with stoploss_fraction = {}, epsilon = {}, start_time = {}, end_time = {}'.format(self.name, \
+            self.symbol, self.stoploss_fraction, self.epsilon, self.start_time, self.end_time))
+
         # Setting up the state variables
         self.position = 0  # 1 for long, 0 for nothing, -1 for short
         self.price = 0  # price at which we are holding the position
@@ -72,9 +80,6 @@ class CrocodileEMACrossoverTradingClient(TradingClient):
         fast = candle.indicators[self.fast]
         mid = candle.indicators[self.mid]
         slow = candle.indicators[self.slow]
-
-        with open("candles/"+self.symbol+".txt", "a+") as f:
-            f.write("Time = {}, O = {}, H = {}, L = {}, C = {}, Volume = {}, ema_5={}, ema_8={}, ema_13={}\n".format(time, opeN, high, low, close, candle.volume, fast, mid, slow))
 
         mild_trend = 0
         if((fast - mid > 0) and (mid - slow > 0)):
@@ -130,7 +135,7 @@ class CrocodileEMACrossoverTradingClient(TradingClient):
 class OpeningRangeBreakoutTradingClient(TradingClient):
 
     def __init__(self, **kwargs):
-        super().__init__(**kwargs)
+        super().__init__(name = 'ORB Client', **kwargs)
         
         # Setting up the state variables
         self.position = 0  # 1 for long, 0 for nothing, -1 for short
@@ -139,10 +144,10 @@ class OpeningRangeBreakoutTradingClient(TradingClient):
         self.high = None
         self.low = None
         self.breakout = False
-        
-        # Hardcoding for BANDHANBNK, remove as soon as the code is debugged.
-        self.high = 307.50
-        self.low = 294.70
+
+        logging.info('Client: Initialized {} on {} with start_time = {}, end_time = {}'.format(self.name, \
+            self.symbol, self.start_time, self.end_time))
+
         
     def updateOpinion(self, candle):
         # Updates the position according to the candle received and decides if
@@ -152,9 +157,6 @@ class OpeningRangeBreakoutTradingClient(TradingClient):
         high = candle.H
         low = candle.L
         close = candle.C
-        
-        with open("candles/"+self.symbol+".txt", "a+") as f:
-            f.write("Time = {}, O = {}, H = {}, L = {}, C = {}, Volume = {}\n".format(time, opeN, high, low, close, candle.volume))
 
         if(time < self.start_time):  # Ignore starting period
             self.high = high if self.high is None else max(self.high, high)
@@ -162,6 +164,7 @@ class OpeningRangeBreakoutTradingClient(TradingClient):
             return
 
         if(self.high is None or self.low is None):
+            logging.error("High/Low for opening range not initialized in {} for {}".format(self.name, self.symbol))
             raise Exception("High/Low for opening range not initialized")
 
         if self.position == 1:

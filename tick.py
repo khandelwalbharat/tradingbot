@@ -1,8 +1,5 @@
 import logging
 
-logging.basicConfig(level=logging.DEBUG)
-LOGGER = logging.getLogger()
-
 class SymbolTickEvent(object):
     """
     Just used to communicated symbol wise ticks from Tick Manager
@@ -32,5 +29,5 @@ class TickManager(object):
             self.candle_managers[symbol_tick.symbol].process_tick(symbol_tick)
 
     def on_ticks(self, ws, ticks):
-        print(ticks)
+        logging.info("Ticks: {}".format(ticks))
         self.process_tick(ticks)
