@@ -1,8 +1,0 @@
-Added trade for RELIANCE at time=11:25:00 with position=-1, price=1471.65, trade_type=new, stoploss=1486.3665, order_id = None, error=
-Added trade for RELIANCE at time=13:50:00 with position=0, price=1475.9, trade_type=trend_reversal, stoploss=None, order_id = None, error=
-Added trade for RELIANCE at time=14:20:00 with position=1, price=1482.0, trade_type=new, stoploss=1467.18, order_id = None, error=
-Added trade for RELIANCE at time=15:20:00 with position=0, price=1481.0, trade_type=day_end, stoploss=None, order_id = None, error=
-Added trade for RELIANCE at time=11:25:00 with position=-1, price=1471.65, trade_type=new, stoploss=1486.3665, order_id = None, error=
-Added trade for RELIANCE at time=13:50:00 with position=0, price=1475.9, trade_type=trend_reversal, stoploss=None, order_id = None, error=
-Added trade for RELIANCE at time=14:20:00 with position=1, price=1482.0, trade_type=new, stoploss=1467.18, order_id = None, error=
-Added trade for RELIANCE at time=15:20:00 with position=0, price=1481.0, trade_type=day_end, stoploss=None, order_id = None, error=

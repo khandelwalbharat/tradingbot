@@ -139,7 +139,11 @@ class OpeningRangeBreakoutTradingClient(TradingClient):
         self.high = None
         self.low = None
         self.breakout = False
-
+        
+        # Hardcoding for BANDHANBNK, remove as soon as the code is debugged.
+        self.high = 307.50
+        self.low = 294.70
+        
     def updateOpinion(self, candle):
         # Updates the position according to the candle received and decides if
         # it wants to act on it. If yes, calls self.order_manager
