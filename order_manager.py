@@ -40,7 +40,7 @@ class OrderManager(object):
                 stoploss_transaction_type = self.kite.TRANSACTION_TYPE_BUY if action=='sell' else self.kite.TRANSACTION_TYPE_SELL #Since it is stoploss, do opposite
 
                 try:
-                    self.stoploss_order_id = self.kite.place_order(tradingsymbol = self.symbol,price=stoploss_trading_price,quantity=1,variety= self.kite.VARIETY_REGULAR,exchange=self.kite.EXCHANGE_NSE,transaction_type=stoploss_transaction_type,order_type=self.kite.ORDER_TYPE_LIMIT,product=self.kite.PRODUCT_MIS, validity = self.kite.VALIDITY_DAY)
+                    self.stoploss_order_id = self.kite.place_order(tradingsymbol = self.symbol,price=stoploss_trading_price,trigger_price = stoploss_trading_price, quantity=1,variety= self.kite.VARIETY_REGULAR,exchange=self.kite.EXCHANGE_NSE,transaction_type=stoploss_transaction_type,order_type=self.kite.ORDER_TYPE_SL,product=self.kite.PRODUCT_MIS, validity = self.kite.VALIDITY_DAY)
                 except Exception as e:
                     error += e.message
 
