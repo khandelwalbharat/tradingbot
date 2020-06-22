@@ -5,12 +5,13 @@ from order_manager import OrderManager
 
 class TradingClient(ABC):
     
-    def __init__(self, symbol, start_time, end_time, candle_duration=5, **kwargs):
+    def __init__(self, symbol, start_time, end_time, candle_duration=5, simulate=False, **kwargs):
         self.symbol = symbol
         self.start_time = start_time
         self.end_time = end_time
         self.candle_duration = candle_duration
-        self.order_manager=OrderManager(self.symbol)
+        self.simulate = simulate # True if running a simulation
+        self.order_manager=OrderManager(symbol = self.symbol, simulate = self.simulate)
         self.indicators = []
 
     @abstractmethod
@@ -33,9 +34,9 @@ class TradingClientFactory(object):
             return CrocodileEMACrossoverTradingClient(symbol=symbol, start_time=start_time, end_time=end_time, stoploss_fraction=stoploss_fraction, epsilon=epsilon)
         
         elif name == 'OpeningRangeBreakoutTradingClient':
-            symbol=kwargs['symbol']
-            start_time=str_to_time(kwargs['start_time'])
-            end_time=str_to_time(kwargs['end_time'])
+            symbol = kwargs['symbol']
+            start_time = str_to_time(kwargs['start_time'])
+            end_time = str_to_time(kwargs['end_time'])
             return OpeningRangeBreakoutTradingClient(symbol=symbol, start_time=start_time, end_time=end_time)
         
         else:
@@ -135,8 +136,8 @@ class OpeningRangeBreakoutTradingClient(TradingClient):
         self.position = 0  # 1 for long, 0 for nothing, -1 for short
         self.price = 0  # price at which we are holding the position
         self.stoploss = 0  # stoploss price for the position
-        self.high = 0
-        self.low = 1e9 # Just for now, can run into severe problems later if connection resets, patch up later, same with above
+        self.high = None
+        self.low = None
         self.breakout = False
 
     def updateOpinion(self, candle):
@@ -152,11 +153,12 @@ class OpeningRangeBreakoutTradingClient(TradingClient):
             f.write("Time = {}, O = {}, H = {}, L = {}, C = {}, Volume = {}\n".format(time, opeN, high, low, close, candle.volume))
 
         if(time < self.start_time):  # Ignore starting period
-            self.high = max(self.high, high)
-            self.low = min(self.low, low)
+            self.high = high if self.high is None else max(self.high, high)
+            self.low = low if self.low is None else min(self.low, low)
             return
 
-        del high, low #Just for now to prevent any mistake of using high instead of self.high, patch up later
+        if(self.high is None or self.low is None):
+            raise Exception("High/Low for opening range not initialized")
 
         if self.position == 1:
             # stoploss hit, sell immediately

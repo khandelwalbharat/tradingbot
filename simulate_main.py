@@ -14,7 +14,7 @@ LOGGER = logging.getLogger()
 
 def main(args):
     for symbol in args.symbol_list:
-        trading_client = CrocodileEMACrossoverTradingClient(symbol=symbol, start_time=datetime.time(10, 30), end_time=datetime.time(15, 20))
+        trading_client = CrocodileEMACrossoverTradingClient(symbol=symbol, start_time=datetime.time(10, 30), end_time=datetime.time(15, 20), simulate=True)
         candle_manager = SimCandleManager(symbol)
         candle_manager.register_trading_client(trading_client)
         candle_manager.create_candle_generators()
