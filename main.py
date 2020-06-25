@@ -19,9 +19,13 @@ def get_today_date_string():
     dt_string = now.strftime("%Y%m%d")
     return dt_string
 
-def main(args):
+def get_workdir():
     date = get_today_date_string()
     workdir = "/spare/local/tradingbot/{}/".format(date)
+    return workdir
+
+def main(args):
+    workdir = get_workdir()
     os.makedirs(workdir, exist_ok=True)
 
     logging.basicConfig(level=logging.DEBUG, filename=path.join(workdir, 'log.txt'), format='%(asctime)s - %(levelname)s - %(message)s')

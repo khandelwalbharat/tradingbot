@@ -4,6 +4,17 @@ import pandas as pd
 from copy import deepcopy
 from indicator import IndicatorFactory
 import logging
+import os
+
+def get_today_date_string():
+    now = datetime.datetime.now()
+    dt_string = now.strftime("%Y%m%d")
+    return dt_string
+
+def get_workdir():
+    date = get_today_date_string()
+    workdir = "/spare/local/tradingbot/{}/".format(date)
+    return workdir
 
 class CandleEvent(object):
 
@@ -53,6 +64,14 @@ class CandleGenerator(object):
         self.candle_duration = candle_duration
         self.duration = datetime.timedelta(minutes=candle_duration)
 
+        workdir = os.path.join(get_workdir(), "candles/")
+        os.makedirs(workdir, exist_ok=True)
+        file_name = "{}_{}.csv".format(self.symbol, self.candle_duration)
+        self.file_path = os.path.join(workdir, file_name)
+        if(os.exists(self.file_path)):
+            # Read the past stored candles(if any) in case of connection reset
+            self.candles = pd.read_csv(self.file_path)
+
     def process_tick(self, symbol_tick):
         if self.last_time is None:
             # first tick
@@ -78,6 +97,7 @@ class CandleGenerator(object):
             self.last_volume = self.last_volume + self.volume
             self.volume = symbol_tick.volume - self.last_volume
             self.candles = pd.concat([self.candles, candle.get_df()])
+            self.candles.to_csv(self.file_path)            
             self.last_time = get_datetime_stripped_to_min(symbol_tick.last_traded_time, self.candle_duration)
             return candle
         else:
@@ -108,6 +128,6 @@ class CandleManager(object):
             candle = candle_generator.process_tick(symbol_tick)
             if candle is None:
                 continue
-            logging.info("Candle: {} = {}".format(self.symbol, candle.get_df().to_dict()))
+            logging.info("Candle: {} = {}".format(self.symbol, candle.get_df().to_dict('records')[0]))
             for trading_client in self.trading_clients[candle_generator.candle_duration]:
                 trading_client.updateOpinion(candle)
