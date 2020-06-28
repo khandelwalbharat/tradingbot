@@ -17,26 +17,30 @@ class OrderManager(object):
         self.kite = kite_object
 
     def addORBTrade(self, time, price, action):
-        trading_price = round(price / 0.05) * 0.05 # Just an approximation for now, patch up later
+        trigger_price = round(price / 0.05) * 0.05 # Just an approximation for now, patch up later
         transaction_type = self.kite.TRANSACTION_TYPE_BUY if action=='buy' else self.kite.TRANSACTION_TYPE_SELL 
         offset = 0.0002*price
         
-        if(action == 'sell'):
-            trigger_price = price+offset
-            trigger_price = round(trigger_price / 0.05) * 0.05
-            trigger_price = max(trigger_price, trading_price+0.05)
+        if(action == 'buy'):
+            trading_price = price+offset
+            trading_price = round(trading_price / 0.05) * 0.05
+            trading_price = max(trading_price, trigger_price+0.05)
 
-        elif(action == 'buy'):
-            trigger_price = price-offset
-            trigger_price = round(trigger_price / 0.05) * 0.05
-            trigger_price = min(trigger_price, trading_price-0.05)
+        elif(action == 'sell'):
+            trading_price = price-offset
+            trading_price = round(trading_price / 0.05) * 0.05
+            trading_price = min(trading_price, trigger_price-0.05)
             
         try:
             self.order_id = self.kite.place_order(tradingsymbol = self.symbol,price=trading_price,trigger_price = trigger_price, quantity=self.quantity,variety= self.kite.VARIETY_REGULAR,exchange=self.kite.EXCHANGE_NSE,transaction_type=transaction_type,order_type=self.kite.ORDER_TYPE_SL,product=self.kite.PRODUCT_MIS, validity = self.kite.VALIDITY_DAY)
             logging.info('Order: {} placed trigger order {} {} @ {} and quantity = {} with trigger_price = {} and order_id = {}'.format(self.client_name, self.symbol, action, trading_price, self.quantity, trigger_price, self.order_id))
         except Exception as e:
             logging.error('Order: {} failed to place trigger order {} {} @ {} and quantity = {} with trigger_price = {} and message = {}'.format(self.client_name, self.symbol, action, trading_price, self.quantity, trigger_price, e), exc_info=True)
-
+            try:
+                self.order_id = self.kite.place_order(tradingsymbol = self.symbol,price=trading_price, quantity=self.quantity,variety= self.kite.VARIETY_REGULAR,exchange=self.kite.EXCHANGE_NSE,transaction_type=transaction_type,order_type=self.kite.ORDER_TYPE_LIMIT,product=self.kite.PRODUCT_MIS, validity = self.kite.VALIDITY_DAY)
+                logging.info('Order: {} placed limit order {} {} @ {} and quantity = {} with order_id = {}'.format(self.client_name, self.symbol, action, trading_price, self.quantity, self.order_id))
+            except Exception as e:
+                logging.error('Order: {} failed to place limit order {} {} @ {} and quantity = {} with message = {}'.format(self.client_name, self.symbol, action, trading_price, self.quantity, e), exc_info=True)
 
     def addTrade(self, time, risk, price, trade_type, stoploss=None, action=None):
         quantity = self.quantity
