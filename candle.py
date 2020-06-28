@@ -5,16 +5,7 @@ from copy import deepcopy
 from indicator import IndicatorFactory
 import logging
 import os
-
-def get_today_date_string():
-    now = datetime.datetime.now()
-    dt_string = now.strftime("%Y%m%d")
-    return dt_string
-
-def get_workdir():
-    date = get_today_date_string()
-    workdir = "/spare/local/tradingbot/{}/".format(date)
-    return workdir
+from utils import get_workdir
 
 class CandleEvent(object):
 
@@ -68,7 +59,7 @@ class CandleGenerator(object):
         os.makedirs(workdir, exist_ok=True)
         file_name = "{}_{}.csv".format(self.symbol, self.candle_duration)
         self.file_path = os.path.join(workdir, file_name)
-        if(os.exists(self.file_path)):
+        if(os.path.exists(self.file_path)):
             # Read the past stored candles(if any) in case of connection reset
             self.candles = pd.read_csv(self.file_path)
 

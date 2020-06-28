@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
 
-import datetime
 import argparse
 import logging
 from time import sleep
@@ -13,16 +12,7 @@ from tick import TickManager
 from collections import OrderedDict
 import os
 from os import path
-
-def get_today_date_string():
-    now = datetime.datetime.now()
-    dt_string = now.strftime("%Y%m%d")
-    return dt_string
-
-def get_workdir():
-    date = get_today_date_string()
-    workdir = "/spare/local/tradingbot/{}/".format(date)
-    return workdir
+from utils import get_workdir
 
 def main(args):
     workdir = get_workdir()
