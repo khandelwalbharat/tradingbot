@@ -9,7 +9,7 @@ def candles_to_start_time(num_candles):
 portfolio = []
 
 #Add the Opening Range Breakout Clients to the portfolio
-orb_symbols = {'EICHERMOT':(4,3), 'BANDHANBNK':(4,180), 'MARUTI':(8,10), 'MRF':(8,1), 'JUSTDIAL':(10,160)}
+orb_symbols = {'EICHERMOT':(12,3), 'BANDHANBNK':(12,160), 'MARUTI':(12,10), 'MRF':(12,1), 'JUSTDIAL':(12,160)}
 
 for symbol, (candle,quantity) in orb_symbols.items():
     portfolio.append({'Name':'OpeningRangeBreakoutTradingClient', 'symbol':symbol, 'start_time':candles_to_start_time(candle), 'end_time':datetime.time(15, 10, 0), 'quantity':quantity})
