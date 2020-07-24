@@ -29,5 +29,6 @@ class TickManager(object):
             self.candle_managers[symbol_tick.symbol].process_tick(symbol_tick)
 
     def on_ticks(self, ws, ticks):
+        print(ticks)
         logging.info("Ticks: {}".format(ticks))
         self.process_tick(ticks)
