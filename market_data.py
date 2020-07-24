@@ -1,3 +1,4 @@
+import json
 import logging
 import pandas as pd
 import websocket
@@ -18,14 +19,23 @@ class MarketDataListener(object):
     # def _init_listener(self):
 
     def connect(self, tick_manager):
-    
+
         def on_open(ws):
             instruments_list = list(self.instrument_token_to_symbol.keys())
             instruments_list = [str(x)+"_NSE" for x in instruments_list]
             instruments_list = [{"symbol":x} for x in instruments_list]
-            
-            data='{"request":{"streaming_type":"quote", "data":{"symbols":instruments_list}, "request_type":"subscribe", "response_format":"json"}}'
-            ws.send(data)
+
+            request = {
+                "request": {
+                    "streaming_type": "quote",
+                    "data": {
+                        "symbols": instruments_list
+                    },
+                    "request_type":"subscribe",
+                    "response_format":"json"
+                }
+            }
+            ws.send(json.dumps(request))
             ws.send("\n")
             logging.debug("Subscribing to {}".format(instruments_list))
 
@@ -34,8 +44,11 @@ class MarketDataListener(object):
             logging.debug("Closing connection with web socket")
 
         def on_error(ws, error):
-            logging.error("Error in web socket with message = {}".format(error))            
+            logging.error("Error in web socket with message = {}".format(error))
 
-        self.ws = websocket.WebSocketApp("wss://stream.stocknote.com", on_open = on_open, on_message = tick_manager.on_ticks, on_error = on_error, on_close = on_close, header = self.headers)
+        def on_message(ws, msg):
+            logging.info ("Message Arrived:" + msg)
+
+        self.ws = websocket.WebSocketApp("wss://stream.stocknote.com", on_open = on_open, on_message = on_message, on_error = on_error, on_close = on_close, header = self.headers)
 
         self.ws.run_forever()
