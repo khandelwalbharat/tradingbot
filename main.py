@@ -17,6 +17,10 @@ from utils import get_workdir
 from samco import SamcoOrderExecutor
 
 def main(args):
+    ans = input("Did you update the portfolio file with the new portfolio? (y/n)\n")
+    if(ans.lower()!="y" and ans.lower()!="yes"):
+        raise Exception("Portfolio file not updated")
+
     workdir = get_workdir()
     os.makedirs(workdir, exist_ok=True)
 
