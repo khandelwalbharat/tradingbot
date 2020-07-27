@@ -1,4 +1,5 @@
 import datetime
+import getpass
 
 def get_today_date_string():
     now = datetime.datetime.now()
@@ -7,5 +8,5 @@ def get_today_date_string():
 
 def get_workdir():
     date = get_today_date_string()
-    workdir = "/home/kushagra/spare/local/tradingbot/{}/".format(date)
+    workdir = "/home/{}/spare/local/tradingbot/{}/".format(getpass.getuser(), date)
     return workdir
