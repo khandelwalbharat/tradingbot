@@ -46,6 +46,9 @@ class MarketDataListener(object):
         def on_error(ws, error):
             logging.error("Error in web socket with message = {}".format(error))
 
-        self.ws = websocket.WebSocketApp("wss://stream.stocknote.com", on_open = on_open, on_message = tick_manager.on_ticks, on_error = on_error, on_close = on_close, header = self.headers)
+        def on_ticks(ws, ticks):
+            tick_manager.on_ticks(ticks)
+
+        self.ws = websocket.WebSocketApp("wss://stream.stocknote.com", on_open = on_open, on_message = on_ticks, on_error = on_error, on_close = on_close, header = self.headers)
 
         self.ws.run_forever()
