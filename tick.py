@@ -1,4 +1,6 @@
 import logging
+import json
+import datetime
 
 class SymbolTickEvent(object):
     """
@@ -10,9 +12,9 @@ class SymbolTickEvent(object):
         self.instrument_token = sym
         self.last_traded_time = datetime.datetime.strptime(lTrdT, '%d %b %Y, %I:%M:%S %p')
         self.last_traded_price = float(ltp)
-        self.volume = int(volume)
-        self.oi = int(oi)
-        self.avg_trade_price = float(average_price)
+        self.volume = int(vol)
+        # self.oi = int(oi)
+        self.avg_trade_price = float(avgPr)
 
 class TickManager(object):
     def __init__(self, instrument_token_to_symbol_map):
@@ -24,11 +26,13 @@ class TickManager(object):
 
     def process_tick(self, ticks):
         tick = ticks['response']['data']
-        symbol = self.instrument_token_to_symbol[tick['instrument_token']]
+        symbol = self.instrument_token_to_symbol[int(tick['sym'].split('_')[0])]
+        # print(symbol)
         symbol_tick = SymbolTickEvent(symbol, **tick)
         self.candle_managers[symbol_tick.symbol].process_tick(symbol_tick)
 
     def on_ticks(self, ticks):
-        print(ticks)
-        logging.info("Ticks: {}".format(ticks))
+        ticks = json.loads(ticks)
+        # print(ticks)
+        # logging.info("Ticks: {}".format(ticks))
         self.process_tick(ticks)
