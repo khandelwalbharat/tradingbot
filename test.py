@@ -1,26 +1,7 @@
-#!/usr/bin/env python3
+from samco import SamcoOrderExecutor
 
-import websocket
+a = SamcoOrderExecutor('01a626a9f7f32f94fecb06315927cad5')
 
-def on_message(ws, msg):
-    print ("Message Arrived:" + msg)
-    
-def on_error(ws, error):
-    print (error)
+status = a.place_order(tradingsymbol = 'IBULHSGFIN', transaction_type = 'BUY', order_type = 'SL', trigger_price = 240, price = 240)
 
-def on_close(ws):
-    print ("Connection Closed")
-
-def on_open(ws):
-    print ("Sending json")
-    data='{"request":{"streaming_type":"quote", "data":{"symbols":[{"symbol":"16852_NSE"}, {"symbol":"16852_NSE"}]}, "request_type":"subscribe", "response_format":"json"}}'
-    ws.send(data)
-    ws.send("\n")
-
-headers = {'x-session-token': 'fb95da11b2471e029be9e4a653944f41'}
-
-websocket.enableTrace(True)
-
-ws = websocket.WebSocketApp("wss://stream.stocknote.com", on_open = on_open, on_message = on_message, on_error = on_error, on_close = on_close, header = headers)
-
-ws.run_forever()
+print(status)

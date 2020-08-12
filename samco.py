@@ -14,8 +14,8 @@ class SamcoOrderExecutor(object):
           'x-session-token': self.session_key
         }
 
-    def place_order(tradingsymbol, transaction_type, order_type, exchange='NSE', quantity=1, price=None, trigger_price=None, product='MIS', validity='DAY'):
-        raise Exception("Orders Blocked") #Testing phase
+    def place_order(self, tradingsymbol, transaction_type, order_type, exchange='NSE', quantity=1, price=None, trigger_price=None, product='MIS', validity='DAY'):
+        # raise Exception("Orders Blocked") #Testing phase
 
         # Convert the floats, int into strings first
         quantity = str(quantity)
