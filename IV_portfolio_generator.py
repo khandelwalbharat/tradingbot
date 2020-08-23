@@ -29,9 +29,12 @@ class ParseTables:
                 lst = []
                 for i in range(0, len(tds)):
                     if(i<len(tds)-1):
-                        txt = tds[i].text.replace('\n','').replace(' ','').replace(',','')
+                        txt = tds[i].text.replace('\n','').replace(' ','').replace(',','').replace('K', "*1000")
                         try:
-                            val = self.schema(txt)
+                            arr = txt.split('*')
+                            val = 1
+                            for x in arr:
+                                val = val*self.schema(x)
                         except:
                             val = str(txt)
                     else:
